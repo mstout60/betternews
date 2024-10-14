@@ -5,6 +5,7 @@ import { HTTPException } from "hono/http-exception";
 import { lucia } from "./lucia";
 import type { Context } from "./context";
 import { authRouter } from "./routes/auth";
+import { postRouter } from "./routes/posts";
 
 const app = new Hono<Context>();
 
@@ -28,7 +29,9 @@ app.use("*", cors(), async (c, next) => {
   return next();
 });
 
-const routes = app.basePath("/api").route("/auth", authRouter);
+const routes = app.basePath("/api")
+  .route("/auth", authRouter)
+  .route("/posts", postRouter);
 
 app.onError((err, c) => {
 
