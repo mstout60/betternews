@@ -1,16 +1,24 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect, useNavigate, useRouter } from '@tanstack/react-router'
 import { z } from 'zod';
 import { fallback, zodSearchValidator } from "@tanstack/router-zod-adapter";
 import { useForm } from "@tanstack/react-form";
 import { zodValidator } from "@tanstack/zod-form-adapter";
 import { loginSchema } from '@/shared/types';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle
+} from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { FieldInfo } from '@/components/field-info';
 import { Button } from '@/components/ui/button';
-import { postSignup } from '@/lib/api';
+import { postSignup, userQueryOptions } from '@/lib/api';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query'
+
 
 const signupSearchSchema = z.object({
     redirect: fallback(z.string(), "/").default("/"),
@@ -19,11 +27,20 @@ const signupSearchSchema = z.object({
 export const Route = createFileRoute('/signup')({
     component: () => <Signup />,
     validateSearch: zodSearchValidator(signupSearchSchema),
+    beforeLoad: async ({ context, search }) => {
+        const user = await context.queryClient.ensureQueryData(userQueryOptions());
+
+        if (user) {
+            throw redirect({ to: search.redirect });
+        }
+    },
 });
 
 function Signup() {
+    const router = useRouter();
     const search = Route.useSearch();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
     const form = useForm({
         defaultValues: {
@@ -38,6 +55,8 @@ function Signup() {
             const res = await postSignup(value.username, value.password);
 
             if (res.success) {
+                await queryClient.invalidateQueries({ queryKey: ["user"] });
+                router.invalidate();
                 await navigate({ to: search.redirect });
                 return null;
             } else {
@@ -127,6 +146,12 @@ function Signup() {
                                     </Button>
                                 }
                             />
+                        </div>
+                        <div className='mt-4 text-center text-sm'>
+                            Already have an account?{" "}
+                            <Link to="/login" className='underline'>
+                                Log in
+                            </Link>
                         </div>
                     </CardContent>
                 </form>

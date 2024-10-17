@@ -55,14 +55,16 @@ export const authRouter = new Hono<Context>()
 
         if (!existingUser) {
             throw new HTTPException(401, {
-                message: "Incorrect username"
+                message: "Incorrect username",
+                cause: { form: true }
             });
         }
 
         const validPassword = await Bun.password.verify(password, existingUser.password_hash);
         if (!validPassword) {
             throw new HTTPException(401, {
-                message: "Incorrect password"
+                message: "Incorrect password",
+                cause: { form: true }
             });
         }
 
