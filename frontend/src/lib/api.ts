@@ -1,4 +1,4 @@
-import { hc } from "hono/client";
+import { hc, InferResponseType } from "hono/client";
 import type {
     ApiRoutes,
     ErrorResponse,
@@ -64,6 +64,7 @@ export const postLogin = async (username: string, password: string) => {
     }
 };
 
+export type GetPostSuccess = InferResponseType<typeof client.posts.$get>;
 export const getPosts = async ({
     pageParam = 1,
     pagination,
@@ -112,3 +113,19 @@ export const userQueryOptions = () =>
         queryFn: getUser,
         staleTime: Infinity,
     });
+
+export async function upvotePost(id: string) {
+    const res = await client.posts[":id"].upvote.$post({
+        param: {
+            id,
+        },
+    });
+
+    if (res.ok) {
+        const data = await res.json();
+        return data;
+    }
+
+    const data = (await res.json) as unknown as ErrorResponse;
+    throw new Error(data.error);
+};
