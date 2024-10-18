@@ -1,4 +1,4 @@
-import { Post } from "@/shared/types";
+import { Post, SuccessResponse } from "@/shared/types";
 import { InfiniteData, useMutation, useQueryClient } from "@tanstack/react-query";
 import { GetPostSuccess, upvotePost } from "./api";
 import { current, produce } from "immer";
@@ -17,6 +17,16 @@ export const useUpvotePost = () => {
         onMutate: async (varable) => {
             let prevData;
             await queryClient.cancelQueries({ queryKey: ["post", Number(varable)] });
+
+            queryClient.setQueryData<SuccessResponse<Post>>(
+                ["post", Number(varable)],
+                produce(draft => {
+                    if (!draft) {
+                        return undefined;
+                    }
+                    updatePostUpvote(draft.data);
+                }),
+            );
 
             queryClient.setQueriesData<InfiniteData<GetPostSuccess>>(
                 {
@@ -40,6 +50,17 @@ export const useUpvotePost = () => {
             return { prevData };
         },
         onSuccess: (upvoteData, variable) => {
+            queryClient.setQueryData<SuccessResponse<Post>>(
+                ["posts", Number(variable)],
+                produce((draft) => {
+                    if (!draft) {
+                        return undefined;
+                    }
+                    draft.data.points = upvoteData.data.count;
+                    draft.data.isUpvoted = upvoteData.data.isUpvoted;
+                }),
+            );
+
             queryClient.setQueriesData<InfiniteData<GetPostSuccess>>({
                 queryKey: ["posts"]
             },
@@ -65,6 +86,7 @@ export const useUpvotePost = () => {
         },
         onError: (err, variable, context) => {
             console.error(err)
+            queryClient.invalidateQueries({ queryKey: ["post", Number(variable)] })
             toast.error("Failed to upvote post")
 
             if (context?.prevData) {

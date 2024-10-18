@@ -74,7 +74,8 @@ export const PostCard = ({
                         <span>·</span>
                         <Link
                             className="hover:underline"
-                            to="/"
+                            to={"/post"}
+                            search={{ id: post.id }}
                         >
                             {post.commentCount} comments
                         </Link>
