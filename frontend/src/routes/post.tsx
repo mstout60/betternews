@@ -6,7 +6,7 @@ import {
     CardContent
 } from '@/components/ui/card';
 import { getComments, getPost } from '@/lib/api';
-import { useUpvotePost } from '@/lib/api-hooks';
+import { useUpvoteComment, useUpvotePost } from '@/lib/api-hooks';
 import { orderSchema, sortBySchema } from '@/shared/types';
 import {
     infiniteQueryOptions,
@@ -16,6 +16,7 @@ import {
 } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router'
 import { fallback, zodSearchValidator } from '@tanstack/router-zod-adapter';
+import { ChevronDownIcon } from 'lucide-react';
 import { useState } from 'react';
 import { z } from "zod";
 
@@ -78,6 +79,7 @@ function Post() {
     );
 
     const upvotePost = useUpvotePost();
+    const upvoteComment = useUpvoteComment();
 
     return (
         <div className='mx-auto max-w-3xl'>
@@ -108,9 +110,29 @@ function Post() {
                                     activeReplyId={activeReplyId}
                                     setActiveReplyId={setActiveReplyId}
                                     isLast={index === page.data.length - 1}
-                                    toggleUpvote={() => { }}
+                                    toggleUpvote={upvoteComment.mutate}
                                 />
-                            )))}
+                            )),
+                        )}
+                        {hasNextPage && (
+                            <div className="mt-2">
+                                <button className="flex items-center space-x-1 text-xs text-muted-foreground hover:text-foreground"
+                                    onClick={() => {
+                                        fetchNextPage();
+                                    }}
+                                    disabled={!hasNextPage || isFetchingNextPage}
+                                >
+                                    {isFetchingNextPage ? (
+                                        <span>Loading...</span>
+                                    ) : (
+                                        <>
+                                            <ChevronDownIcon size={12} />
+                                            <span>More replies</span>
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             )}

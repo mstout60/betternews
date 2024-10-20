@@ -115,7 +115,8 @@ export const userQueryOptions = () =>
         staleTime: Infinity,
     });
 
-export async function upvotePost(id: string) {
+export async function upvotePost(
+    id: string) {
     const res = await client.posts[":id"].upvote.$post({
         param: {
             id,
@@ -131,7 +132,8 @@ export async function upvotePost(id: string) {
     throw new Error(data.error);
 };
 
-export const postSubmit = async (title: string, url: string, content: string) => {
+export const postSubmit = async (
+    title: string, url: string, content: string) => {
     try {
         const res = await client.posts.$post({
             form: {
@@ -157,7 +159,8 @@ export const postSubmit = async (title: string, url: string, content: string) =>
     }
 };
 
-export const getPost = async (id: number) => {
+export const getPost = async (
+    id: number) => {
     const res = await client.posts[":id"].$get({
         param: {
             id: id.toString(),
@@ -208,7 +211,8 @@ export async function getComments(
 
 };
 
-export async function getCommentComments(id: number, page: number = 1, limit: number = 2) {
+export async function getCommentComments(
+    id: number, page: number = 1, limit: number = 2) {
     const res = await client.comments[":id"].comments.$get({
         param: {
             id: id.toString(),
@@ -225,4 +229,19 @@ export async function getCommentComments(id: number, page: number = 1, limit: nu
         const data = (await res.json()) as unknown as ErrorResponse;
         throw new Error(data.error);
     }
+};
+
+export async function upvoteComment(id: string) {
+    const res = await client.comments[":id"].upvote.$post({
+        param: {
+            id,
+        }
+    })
+
+    if (res.ok) {
+        return await res.json();
+    }
+
+    const data = (await res.json()) as unknown as ErrorResponse;
+    throw Error(data.error);
 };

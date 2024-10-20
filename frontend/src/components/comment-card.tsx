@@ -4,7 +4,8 @@ import { Comment } from "@/shared/types"
 import { useQuery, useQueryClient, useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { ChevronDownIcon, ChevronUpIcon, MessageSquareIcon, MinusIcon, PlusIcon } from "lucide-react";
 import { useState } from "react";
-import { Separator } from "./ui/separator";
+import { Separator } from "@/components/ui/separator";
+import { useUpvoteComment } from "@/lib/api-hooks";
 
 type CommentCardProps = {
     comment: Comment;
@@ -12,7 +13,7 @@ type CommentCardProps = {
     activeReplyId: number | null,
     setActiveReplyId: React.Dispatch<React.SetStateAction<number | null>>;
     isLast: boolean;
-    toggleUpvote: () => void;
+    toggleUpvote: ReturnType<typeof useUpvoteComment>["mutate"];
 };
 
 export function CommentCard({
@@ -77,6 +78,13 @@ export function CommentCard({
                             "flex items-center space-x-1 hover:text-primary",
                             isUpvoted ? "text-primary" : "text-muted-foreground",
                         )}
+                        onClick={() =>
+                            toggleUpvote({
+                                id: comment.id.toString(),
+                                postId: comment.postId,
+                                parentCommentId: comment.parentCommentId,
+                            })
+                        }
                     >
                         <ChevronUpIcon size={14} />
                         <span className="font-medium">{comment.points}</span>
@@ -158,7 +166,7 @@ export function CommentCard({
             )}
             {!isLast && (
                 <Separator className="my-2" />
-            ) }
+            )}
         </div>
     );
 }
