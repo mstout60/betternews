@@ -6,6 +6,7 @@ import { ChevronDownIcon, ChevronUpIcon, MessageSquareIcon, MinusIcon, PlusIcon 
 import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { useUpvoteComment } from "@/lib/api-hooks";
+import { CommentForm } from "./coment-form";
 
 type CommentCardProps = {
     comment: Comment;
@@ -58,6 +59,7 @@ export function CommentCard({
             return lastPageParam + 1;
         },
     });
+    const isDraft = comment.id === -1;
 
     const { data: user } = useQuery(userQueryOptions());
     const isUpvoted = comment.commentUpvotes.length > 0;
@@ -68,6 +70,7 @@ export function CommentCard({
     return (
         <div className={cn(
             depth > 0 && "ml-4 border-l border-border pl-4",
+            isDraft && "pointer-events-none opacity-50"
         )}
         >
             <div className="py-2">
@@ -117,7 +120,13 @@ export function CommentCard({
                             )}
                         </div>
                         {isReplying && (
-                            <div className="mt-2">COMMENT FORM</div>
+                            <div className="mt-2">
+                                <CommentForm
+                                    id={comment.id}
+                                    isParent
+                                    onSuccess={() => setActiveReplyId(null)}
+                                />
+                            </div>
                         )}
                     </>
                 )}
