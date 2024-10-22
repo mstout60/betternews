@@ -9,6 +9,7 @@ import { lucia } from "./lucia";
 import { authRouter } from "./routes/auth";
 import { commentsRouter } from "./routes/comments";
 import { postRouter } from "./routes/posts";
+import { serveStatic } from "hono/bun";
 
 const app = new Hono<Context>();
 
@@ -73,12 +74,15 @@ app.onError((err, c) => {
   );
 });
 
-export default app;
+app.get("*", serveStatic({ root: "./frontend/dist" }));
+app.get("*", serveStatic({ path: "./frontend/dist/index.html" }));
 
-// export default {
-//   port: process.env["PORT"] || 3000,
-//   hostname: "0.0.0.0",
-//   fetch: app.fetch,
-// };
+//export default app;
+
+export default {
+  port: process.env["PORT"] || 3000,
+  hostname: "0.0.0.0",
+  fetch: app.fetch,
+};
 
 export type ApiRoutes = typeof routes;
