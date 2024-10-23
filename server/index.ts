@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { serveStatic } from "hono/bun";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 
@@ -9,7 +10,6 @@ import { lucia } from "./lucia";
 import { authRouter } from "./routes/auth";
 import { commentsRouter } from "./routes/comments";
 import { postRouter } from "./routes/posts";
-import { serveStatic } from "hono/bun";
 
 const app = new Hono<Context>();
 
