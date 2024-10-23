@@ -1,6 +1,6 @@
 
 # syntax=docker/dockerfile:1.7-labs
-ARG BUN_VERSION=1.1.30
+ARG BUN_VERSION=1.1.3
 FROM oven/bun:${BUN_VERSION}-slim as base
 
 LABEL fly_launch_runtime="Bun"
@@ -25,7 +25,7 @@ RUN cd frontend && bun run build -d
 
 FROM base as release
 COPY --from=install /temp/prod/server/node_modules node_modules
-COPY --exclude=frontend --from=build /usr/src/app .
+#COPY --exclude=frontend --from=build /usr/src/app .
 COPY --from=build /usr/src/app/frontend/dist ./frontend/dist
 
 USER bun
