@@ -3,7 +3,7 @@
 ARG BUN_VERSION=1.1.3
 FROM oven/bun:${BUN_VERSION}-slim as base
 
-#RUN apt-get update; apt-get install -y ca-certificates jq
+RUN apt-get update; apt-get install -y ca-certificates jq
 
 COPY <<"EOF" /srv/deploy.sh
 #!/bin/bash
