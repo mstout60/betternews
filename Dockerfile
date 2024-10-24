@@ -21,7 +21,7 @@ EOF
 
 RUN chmod +x /srv/deploy.sh
 
-COPY --from=flyio /flyctl /usr/bin
+#COPY --from=flyio /flyctl /usr/bin
 
 LABEL fly_launch_runtime="Bun"
 
