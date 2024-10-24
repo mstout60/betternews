@@ -3,6 +3,26 @@
 ARG BUN_VERSION=1.1.3
 FROM oven/bun:${BUN_VERSION}-slim as base
 
+RUN apt-get update; apt-get install -y ca-certificates jq
+
+COPY <<"EOF" /srv/deploy.sh
+#!/bin/bash
+deploy=(flyctl deploy)
+touch /srv/.secrets
+
+while read -r secret; do
+  echo "export ${secret}=${!secret}" >> /srv/.secrets
+  deploy+=(--build-secret "${secret}=${!secret}")
+done < <(flyctl secrets list --json | jq -r ".[].Name")
+
+deploy+=(--build-secret "ALL_SECRETS=$(base64 --wrap=0 /srv/.secrets)")
+${deploy[@]}
+EOF
+
+RUN chmod +x /srv/deploy.sh
+
+COPY --from=flyio /flyctl /usr/bin
+
 LABEL fly_launch_runtime="Bun"
 
 WORKDIR /usr/src/app
